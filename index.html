@@ -10,6 +10,7 @@
 <link rel="preload" as="image" href="Logos/InstagramLogo.png">
 <link rel="preload" as="image" href="Frames/frame-gold-founders.png">
 <link rel="preload" as="image" href="Frames/frame-purple-staff.png">
+<link rel="preload" as="image" href="Logos/BannerPeaches.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Grandstander:ital,wght@0,500;0,600;0,700;0,800;1,600;1,700;1,800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.462.0/dist/umd/lucide.min.js"></script>
@@ -86,7 +87,7 @@
     display:flex; align-items:center; justify-content:center; gap:.5rem;
     padding:clamp(.8rem,3vw,1.4rem) 1rem .1rem;
   }
-  .brandbar svg{width:1.4rem; height:1.4rem;}
+  .brandbar img{height:2.1rem; width:auto; display:block;}
   .brandbar span{font-family:"Grandstander",sans-serif; font-weight:800; font-style:italic; font-size:1rem; letter-spacing:.02em;}
 
   .stage{width:100%; min-width:0; min-height:0; display:flex; align-items:center; justify-content:center; padding:clamp(.9rem,4vw,3rem); overflow-y:auto;}
@@ -164,6 +165,8 @@
     font-size:.7rem; font-weight:600; background:rgba(0,0,0,.35); color:var(--white);
     padding:.3rem .7rem; border-radius:999px; pointer-events:none;
   }
+  .clip-progress{width:100%; height:5px; background:rgba(255,255,255,.28); border-radius:999px; overflow:hidden; margin-top:.6rem;}
+  .clip-progress-fill{height:100%; width:0%; background:var(--white); border-radius:inherit;}
   .seq-controls{display:flex; align-items:center; justify-content:center; margin-top:.2rem;}
   .btn-sound{
     display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .85rem; border-radius:999px;
@@ -171,9 +174,8 @@
   }
 
   /* ---------- pantalla: dúo de "cartas" tipo poker ---------- */
-  .duo-wrap{width:min(100%,440px); margin:0 auto; text-align:center; display:flex; flex-direction:column; align-items:center; gap:.2rem;}
+  .duo-wrap{width:min(100%,440px); margin:0 auto; text-align:center; display:flex; flex-direction:column; align-items:center; gap:1.3rem;}
   .duo-title{opacity:0; transform:translateY(14px); margin:0; padding:0 .4rem; overflow-wrap:normal; word-break:keep-all;}
-  .dt-2{margin-top:10%;}
   .duo-wrap.is-playing .dt-1{animation:duoTitleIn .7s ease forwards; animation-delay:.05s;}
   .duo-wrap.is-playing .dt-2{animation:duoTitleIn .7s ease forwards; animation-delay:.55s;}
   @keyframes duoTitleIn{to{opacity:1; transform:translateY(0);}}
@@ -188,17 +190,17 @@
     border:3px solid var(--white); overflow:hidden; opacity:0;
     box-shadow:0 20px 45px rgba(120,10,60,.32);
   }
-  .dc-1{z-index:1; transform:translate(-15.4%,-8.8%) rotate(-9deg) scale(.96);}
-  .dc-2{z-index:2; transform:translate(15.4%,8.8%) rotate(9deg) scale(.96);}
+  .dc-1{z-index:1; transform:translate(-16.94%,-8.8%) rotate(-9deg) scale(.96);}
+  .dc-2{z-index:2; transform:translate(16.94%,8.8%) rotate(9deg) scale(.96);}
   .duo-cards.is-playing .dc-1{animation:dealCard1 .85s cubic-bezier(.22,.8,.25,1) forwards;}
   .duo-cards.is-playing .dc-2{animation:dealCard2 .85s cubic-bezier(.22,.8,.25,1) forwards; animation-delay:.5s;}
   @keyframes dealCard1{
     from{opacity:0; transform:translate(-70%,-45%) rotate(-32deg) scale(.78);}
-    to{opacity:1; transform:translate(-15.4%,-8.8%) rotate(-9deg) scale(.96);}
+    to{opacity:1; transform:translate(-16.94%,-8.8%) rotate(-9deg) scale(.96);}
   }
   @keyframes dealCard2{
     from{opacity:0; transform:translate(70%,45%) rotate(32deg) scale(.78);}
-    to{opacity:1; transform:translate(15.4%,8.8%) rotate(9deg) scale(.96);}
+    to{opacity:1; transform:translate(16.94%,8.8%) rotate(9deg) scale(.96);}
   }
   .fan-screen{width:100%; height:100%; display:flex; flex-direction:column; align-items:stretch; justify-content:flex-start; padding:.6rem; gap:0; overflow:hidden; color:var(--white); background:var(--pink-deep); position:relative; z-index:0;}
   .duo-video{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000; z-index:1; display:none;}
@@ -248,7 +250,7 @@
   .smule-card:focus-visible{outline:3px solid var(--white); outline-offset:4px; border-radius:.7rem;}
   .avatar-wrap{position:relative; display:inline-flex;}
   .smule-card img{width:4.42rem; height:4.42rem; border-radius:50%; object-fit:cover; border:3px solid var(--white); box-shadow:0 8px 18px rgba(120,10,60,.28); background:var(--pink-deep);}
-  .avatar-ring{position:absolute; top:50%; left:50%; width:142%; height:142%; transform:translate(-50%,-50%); pointer-events:none; z-index:1;}
+  .avatar-ring{position:absolute; top:50%; left:50%; width:135%; height:135%; transform:translate(-50%,-50%); pointer-events:none; z-index:1;}
   .crown-badge{
     position:absolute; top:-.35rem; right:-.4rem; width:1.15rem; height:1.15rem;
     color:#ffd34d; background:var(--pink-darker); border-radius:50%; padding:.2rem;
@@ -314,7 +316,7 @@
   <section id="screen-1" class="screen is-active" aria-labelledby="t1">
     <div class="bg"></div>
     <div class="brandbar" aria-hidden="true">
-      <svg viewBox="0 0 64 64" fill="none"><path d="M32 54C18 46 8 36 8 24c0-8 6-14 13-14 5 0 9 3 11 7 2-4 6-7 11-7 7 0 13 6 13 14 0 12-10 22-24 30Z" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="M32 17c1-4 4-6 7-7-2 5-2 8 0 11-3 1-6 0-7-4Z" fill="#fff"/></svg>
+      <img src="Logos/BannerPeaches.png" alt="Peaches">
       <span>Peaches</span>
     </div>
     <div class="stage">
@@ -334,7 +336,7 @@
   <section id="screen-2" class="screen" aria-labelledby="t2">
     <div class="bg alt"></div>
     <div class="brandbar" aria-hidden="true">
-      <svg viewBox="0 0 64 64" fill="none"><path d="M32 54C18 46 8 36 8 24c0-8 6-14 13-14 5 0 9 3 11 7 2-4 6-7 11-7 7 0 13 6 13 14 0 12-10 22-24 30Z" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="M32 17c1-4 4-6 7-7-2 5-2 8 0 11-3 1-6 0-7-4Z" fill="#fff"/></svg>
+      <img src="Logos/BannerPeaches.png" alt="Peaches">
       <span>Peaches</span>
     </div>
     <div class="stage">
@@ -346,7 +348,7 @@
         <button id="clip-frame" type="button" class="clip-frame" aria-label="Toca la imagen para ver la siguiente escena">
           <span id="clip-sr" class="sr-only" aria-live="polite">Matar el dragón. Con audio chistoso incluido.</span>
           <div class="clip c1 is-current" data-clip="0" aria-hidden="true">
-            <video class="clip-video" src="videos/team-1.mp4" loop playsinline preload="metadata" onerror="this.style.display='none'"></video>
+            <video class="clip-video" src="videos/team-1.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
             <div class="clip-mock">
               <i data-lucide="mic-2" class="clip-icon"></i>
               <p class="clip-title">Cover del momento</p>
@@ -354,7 +356,7 @@
             </div>
           </div>
           <div class="clip c2" data-clip="1" aria-hidden="true">
-            <video class="clip-video" src="videos/team-2.mp4" loop playsinline preload="metadata" onerror="this.style.display='none'"></video>
+            <video class="clip-video" src="videos/team-2.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
             <div class="clip-mock">
               <i data-lucide="drama" class="clip-icon"></i>
               <p class="clip-title">Escena de doblaje</p>
@@ -362,7 +364,7 @@
             </div>
           </div>
           <div class="clip c3" data-clip="2" aria-hidden="true">
-            <video class="clip-video" src="videos/team-3.mp4" loop playsinline preload="metadata" onerror="this.style.display='none'"></video>
+            <video class="clip-video" src="videos/team-3.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
             <div class="clip-mock">
               <i data-lucide="flame" class="clip-icon"></i>
               <p class="clip-title">Matar el dragón</p>
@@ -370,7 +372,7 @@
             </div>
           </div>
           <div class="clip c4" data-clip="3" aria-hidden="true">
-            <video class="clip-video" src="videos/team-4.mp4" loop playsinline preload="metadata" onerror="this.style.display='none'"></video>
+            <video class="clip-video" src="videos/team-4.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
             <div class="clip-mock">
               <i data-lucide="radio" class="clip-icon"></i>
               <p class="clip-title">Fragmento de stream</p>
@@ -379,6 +381,9 @@
           </div>
           <span class="tap-hint" aria-hidden="true">Toca para saltar</span>
         </button>
+        <div class="clip-progress" aria-hidden="true">
+          <div class="clip-progress-fill" id="clip-progress-fill"></div>
+        </div>
         <div class="seq-controls">
           <button id="sound-toggle" type="button" class="btn-sound" aria-pressed="false">
             <i id="sound-icon" data-lucide="volume-2" class="w-4 h-4"></i>
@@ -398,7 +403,7 @@
   <section id="screen-3" class="screen" aria-labelledby="t3">
     <div class="bg"></div>
     <div class="brandbar" aria-hidden="true">
-      <svg viewBox="0 0 64 64" fill="none"><path d="M32 54C18 46 8 36 8 24c0-8 6-14 13-14 5 0 9 3 11 7 2-4 6-7 11-7 7 0 13 6 13 14 0 12-10 22-24 30Z" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="M32 17c1-4 4-6 7-7-2 5-2 8 0 11-3 1-6 0-7-4Z" fill="#fff"/></svg>
+      <img src="Logos/BannerPeaches.png" alt="Peaches">
       <span>Peaches</span>
     </div>
     <div class="stage">
@@ -441,7 +446,7 @@
   <section id="screen-4" class="screen" aria-labelledby="t4">
     <div class="bg alt"></div>
     <div class="brandbar" aria-hidden="true">
-      <svg viewBox="0 0 64 64" fill="none"><path d="M32 54C18 46 8 36 8 24c0-8 6-14 13-14 5 0 9 3 11 7 2-4 6-7 11-7 7 0 13 6 13 14 0 12-10 22-24 30Z" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="M32 17c1-4 4-6 7-7-2 5-2 8 0 11-3 1-6 0-7-4Z" fill="#fff"/></svg>
+      <img src="Logos/BannerPeaches.png" alt="Peaches">
       <span>Peaches</span>
     </div>
     <div class="stage">
@@ -474,7 +479,7 @@
   <section id="screen-5" class="screen" aria-labelledby="t5">
     <div class="bg"></div>
     <div class="brandbar" aria-hidden="true">
-      <svg viewBox="0 0 64 64" fill="none"><path d="M32 54C18 46 8 36 8 24c0-8 6-14 13-14 5 0 9 3 11 7 2-4 6-7 11-7 7 0 13 6 13 14 0 12-10 22-24 30Z" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="M32 17c1-4 4-6 7-7-2 5-2 8 0 11-3 1-6 0-7-4Z" fill="#fff"/></svg>
+      <img src="Logos/BannerPeaches.png" alt="Peaches">
       <span>Peaches</span>
     </div>
     <div class="stage">
@@ -569,7 +574,7 @@
   <section id="screen-6" class="screen" aria-labelledby="t6">
     <div class="bg alt"></div>
     <div class="brandbar" aria-hidden="true">
-      <svg viewBox="0 0 64 64" fill="none"><path d="M32 54C18 46 8 36 8 24c0-8 6-14 13-14 5 0 9 3 11 7 2-4 6-7 11-7 7 0 13 6 13 14 0 12-10 22-24 30Z" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="M32 17c1-4 4-6 7-7-2 5-2 8 0 11-3 1-6 0-7-4Z" fill="#fff"/></svg>
+      <img src="Logos/BannerPeaches.png" alt="Peaches">
       <span>Peaches</span>
     </div>
     <div class="stage">
@@ -657,14 +662,15 @@
   const bgMusic = document.getElementById("bg-music");
   function playBgMusic(){
     if(!bgMusic || !bgMusic.paused) return;
-    bgMusic.volume = 0.5;
+    bgMusic.volume = 0.3;
+    bgMusic.muted = soundMuted;
     const attempt = bgMusic.play();
     if(attempt && attempt.catch){
       attempt.catch(()=>{
         bgMusic.muted = true;
         bgMusic.play().catch(()=>{});
         const retry = ()=>{
-          bgMusic.muted = false;
+          bgMusic.muted = soundMuted;
           bgMusic.play().catch(()=>{});
         };
         window.addEventListener("pointerdown", retry, { once:true });
@@ -741,6 +747,7 @@
     soundMuted = !soundMuted;
     masterGain.gain.value = soundMuted ? 0 : 0.16;
     setAllVideosMuted(soundMuted);
+    if(bgMusic) bgMusic.muted = soundMuted;
     updateSoundControl();
   });
 
@@ -758,10 +765,20 @@
   ];
   let clipIndex = 0;
   let clipTimer = null;
-  const CLIP_DURATION = 4500; // ms que dura cada clip antes de pasar solo al siguiente
+  const CLIP_FALLBACK_DURATION = 4500; // solo se usa si un clip no tiene video reproducible
   const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const clipProgressFill = document.getElementById("clip-progress-fill");
+
+  function resetClipProgress(){
+    if(!clipProgressFill) return;
+    clipProgressFill.style.transition = "none";
+    clipProgressFill.style.width = "0%";
+    void clipProgressFill.offsetWidth; // forzar reflow
+    clipProgressFill.style.transition = "";
+  }
 
   function updateClip(){
+    resetClipProgress();
     clips.forEach((c,i)=>{
       c.classList.toggle("is-current", i===clipIndex);
       const v = c.querySelector(".clip-video");
@@ -771,22 +788,31 @@
     });
     tapSubtitle.textContent = subtitles[clipIndex];
     clipSr.textContent = clipSrTexts[clipIndex];
+    scheduleClipAdvance();
   }
   function scheduleClipAdvance(){
     if(clipTimer) clearTimeout(clipTimer);
     if(prefersReducedMotion) return; // si el usuario pidió menos movimiento, que avance solo con tap
-    clipTimer = setTimeout(advanceClip, CLIP_DURATION);
+    const currentClipEl = clips[clipIndex];
+    const v = currentClipEl ? currentClipEl.querySelector(".clip-video") : null;
+    const broken = !v || v.dataset.broken === "true";
+    if(!broken) return; // hay video real: se espera a que termine (evento "ended"), no a un timer fijo
+    if(clipProgressFill){
+      requestAnimationFrame(()=>{
+        clipProgressFill.style.transition = `width ${CLIP_FALLBACK_DURATION}ms linear`;
+        clipProgressFill.style.width = "100%";
+      });
+    }
+    clipTimer = setTimeout(advanceClip, CLIP_FALLBACK_DURATION);
     activeTimers.push(clipTimer);
   }
   function advanceClip(){
     clipIndex = (clipIndex + 1) % clips.length;
     updateClip();
-    scheduleClipAdvance();
   }
   function resetTapSequence(){
     clipIndex = 0;
     updateClip();
-    scheduleClipAdvance();
   }
   clipFrame.addEventListener("click", async ()=>{
     advanceClip();
@@ -828,6 +854,19 @@
       video.addEventListener("loadeddata", ()=>{
         const mock = video.nextElementSibling;
         if(mock && mock.classList.contains("clip-mock")) mock.style.display = "none";
+      });
+      video.addEventListener("ended", ()=>{
+        const clipEl = video.closest(".clip");
+        const idx = clipEl ? parseInt(clipEl.dataset.clip, 10) : -1;
+        if(idx === clipIndex) advanceClip();
+      });
+      video.addEventListener("timeupdate", ()=>{
+        const clipEl = video.closest(".clip");
+        const idx = clipEl ? parseInt(clipEl.dataset.clip, 10) : -1;
+        if(idx === clipIndex && clipProgressFill && video.duration){
+          clipProgressFill.style.transition = "";
+          clipProgressFill.style.width = ((video.currentTime / video.duration) * 100) + "%";
+        }
       });
     });
   }
