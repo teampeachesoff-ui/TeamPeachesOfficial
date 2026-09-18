@@ -5,23 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Peaches Oficial</title>
 <link rel="icon" type="image/jpeg" href="Logos/PeachesLogo.jpeg">
-<link rel="preload" as="image" href="Logos/YoutubeLogo.png">
-<link rel="preload" as="image" href="Logos/TikTokLogo.png">
-<link rel="preload" as="image" href="Logos/InstagramLogo.png">
-<link rel="preload" as="image" href="Frames/frame-gold-founders.png">
-<link rel="preload" as="image" href="Frames/frame-purple-staff.png">
+<!-- Solo se precarga lo que se ve en el primer pantallazo (pantalla 1).
+     Todo lo demás (iconos de redes, marcos, avatares de Smule) pertenece a
+     pantallas a las que se llega varios "Siguiente" después, así que se
+     dejan cargar de forma normal/perezosa para no competir por ancho de
+     banda ni CPU justo al abrir la página (clave en equipos/conexiones
+     modestas). -->
 <link rel="preload" as="image" href="Logos/BannerPeaches.png">
 <link rel="preload" as="image" href="Logos/Peaches.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Grandstander:ital,wght@0,500;0,600;0,700;0,800;1,600;1,700;1,800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/lucide@0.462.0/dist/umd/lucide.min.js"></script>
-<link rel="preload" as="image" href="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/f9/8e/6b2576ca-02f3-4a17-8711-c6b1cf2a6876.jpg">
-<link rel="preload" as="image" href="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/f0/4e/ec52865d-af98-4641-836d-f5fab8284b2a.jpg">
-<link rel="preload" as="image" href="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/60/46/fbe6aa01-5a12-4cec-a19f-3d5ee89d1064.jpg">
-<link rel="preload" as="image" href="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/e0/85/476ba952-089f-4bee-b480-adb8d5d7eb11.jpg">
-<link rel="preload" as="image" href="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/8f/d6/6c0ddf79-6383-442a-b610-74f0b1f61707.jpg">
-<link rel="preload" as="image" href="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/50/bd/b4c0f426-0f33-4d16-9494-faa6aab7b709.jpg">
-<link rel="preload" as="image" href="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/3a/7d/eb2e541f-d17d-4762-8d45-818d8725af32.jpg">
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.462.0/dist/umd/lucide.min.js" defer></script>
 <style>
   :root{
     --pink:#f2368c;
@@ -64,13 +59,18 @@
     position:absolute; inset:0;
     display:grid; grid-template-rows:auto 1fr auto;
     opacity:0; visibility:hidden; transform:scale(1.02);
-    transition:opacity 600ms ease, transform 800ms cubic-bezier(.2,.7,.2,1), visibility 0s linear 600ms;
+    transition:opacity 600ms ease, transform 800ms cubic-bezier(.2,.7,.2,1), visibility 0s linear 600ms, content-visibility 0s linear 600ms;
     pointer-events:none;
+    /* Rendimiento: mientras una pantalla no está activa, el navegador se salta por completo su
+       layout/estilo/pintado (videos, íconos, gradientes...). Se activa 600ms después de dejar de
+       ser la pantalla activa -mismo instante que "visibility"- para no cortar el fade-out. */
+    content-visibility:hidden;
   }
   .screen.is-active{
     opacity:1; visibility:visible; transform:scale(1);
     transition:opacity 600ms ease, transform 800ms cubic-bezier(.2,.7,.2,1);
     pointer-events:auto;
+    content-visibility:visible;
   }
 
   .bg{position:absolute; inset:0; z-index:-2; background:var(--pink);}
@@ -90,7 +90,11 @@
   }
   .brandbar img{height:4.2rem; width:auto; display:block;}
 
-  .stage{width:100%; min-width:0; min-height:0; display:flex; align-items:center; justify-content:center; padding:clamp(.9rem,4vw,3rem); overflow-y:auto;}
+  /* align-items:center primero como respaldo; safe center encima (se ignora en motores que no
+     lo soportan, y en los que sí, evita que el contenido se centre "hacia afuera" del área con
+     scroll cuando no cabe). Así el encabezado SIEMPRE queda arriba con su propio espacio real y
+     nunca se recorta ni se tapa contenido: si no cabe, se puede hacer scroll para verlo completo. */
+  .stage{width:100%; min-width:0; min-height:0; display:flex; align-items:center; align-items:safe center; justify-content:center; padding:clamp(.9rem,4vw,3rem); overflow-y:auto; overflow-anchor:none;}
 
   .copy{width:min(100%,720px); text-align:center; animation:rise 700ms ease both;}
   .label{font-family:"Grandstander",sans-serif; font-style:italic; font-weight:600; font-size:.95rem; color:var(--white); opacity:.85; margin:0 0 .4rem;}
@@ -283,12 +287,6 @@
 
   /* ---------- pantalla: dinámica ---------- */
   .dyn-wrap{width:min(100%,600px); text-align:left; animation:rise 700ms ease both; margin:0 auto;}
-  /* La pantalla de Dinámica tiene mucho texto: el header (brandbar) ya reserva su propia fila
-     en el grid, pero si el contenido es más alto que el espacio disponible, el centrado vertical
-     del .stage empuja la parte de arriba fuera de vista y no se puede hacer scroll hasta ella.
-     Aquí anclamos el contenido arriba para que nunca quede tapado por el encabezado y siempre
-     se pueda hacer scroll para ver todo. */
-  #screen-6 .stage{align-items:flex-start;}
   .dyn-cards{display:grid; gap:.75rem; margin-top:1.1rem;}
   .dyn-card{
     background:var(--white); color:var(--ink); border-radius:1.2rem; padding:.95rem 1.1rem;
@@ -526,15 +524,15 @@
             <div class="smule-grid">
               <a class="smule-card is-founder" href="https://www.smule.com/AlixTKM" target="_blank" rel="noopener" data-smule-user="AlixTKM">
                 <span class="avatar-wrap">
-                  <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/f9/8e/6b2576ca-02f3-4a17-8711-c6b1cf2a6876.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/f9/8e/6b2576ca-02f3-4a17-8711-c6b1cf2a6876.jpg" alt="" loading="eager" fetchpriority="high">
-                  <img class="avatar-ring" src="Frames/frame-gold-founders.png" alt="" aria-hidden="true">
+                  <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/f9/8e/6b2576ca-02f3-4a17-8711-c6b1cf2a6876.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/f9/8e/6b2576ca-02f3-4a17-8711-c6b1cf2a6876.jpg" alt="" loading="lazy" fetchpriority="low" decoding="async">
+                  <img class="avatar-ring" src="Frames/frame-gold-founders.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
                 </span>
                 <span>Alix</span>
               </a>
               <a class="smule-card is-founder" href="https://www.smule.com/Itx_Eryck" target="_blank" rel="noopener" data-smule-user="Itx_Eryck">
                 <span class="avatar-wrap">
-                  <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/f0/4e/ec52865d-af98-4641-836d-f5fab8284b2a.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/f0/4e/ec52865d-af98-4641-836d-f5fab8284b2a.jpg" alt="" loading="eager" fetchpriority="high">
-                  <img class="avatar-ring" src="Frames/frame-gold-founders.png" alt="" aria-hidden="true">
+                  <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/f0/4e/ec52865d-af98-4641-836d-f5fab8284b2a.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/f0/4e/ec52865d-af98-4641-836d-f5fab8284b2a.jpg" alt="" loading="lazy" fetchpriority="low" decoding="async">
+                  <img class="avatar-ring" src="Frames/frame-gold-founders.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
                 </span>
                 <span>Eryck</span>
               </a>
@@ -545,36 +543,36 @@
             <div class="smule-grid">
               <a class="smule-card" href="https://www.smule.com/RagnaBelzzerion" target="_blank" rel="noopener" data-smule-user="RagnaBelzzerion">
                 <span class="avatar-wrap">
-                  <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/60/46/fbe6aa01-5a12-4cec-a19f-3d5ee89d1064.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/60/46/fbe6aa01-5a12-4cec-a19f-3d5ee89d1064.jpg" alt="" loading="eager" fetchpriority="high">
-                <img class="avatar-ring" src="Frames/frame-purple-staff.png" alt="" aria-hidden="true">
+                  <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/60/46/fbe6aa01-5a12-4cec-a19f-3d5ee89d1064.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/60/46/fbe6aa01-5a12-4cec-a19f-3d5ee89d1064.jpg" alt="" loading="lazy" fetchpriority="low" decoding="async">
+                <img class="avatar-ring" src="Frames/frame-purple-staff.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
                 </span>
                 <span>Ragna</span>
               </a>
               <a class="smule-card" href="https://www.smule.com/doncazador1" target="_blank" rel="noopener" data-smule-user="doncazador1">
                 <span class="avatar-wrap">
-                  <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/e0/85/476ba952-089f-4bee-b480-adb8d5d7eb11.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/e0/85/476ba952-089f-4bee-b480-adb8d5d7eb11.jpg" alt="" loading="eager" fetchpriority="high">
-                <img class="avatar-ring" src="Frames/frame-purple-staff.png" alt="" aria-hidden="true">
+                  <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/e0/85/476ba952-089f-4bee-b480-adb8d5d7eb11.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/e0/85/476ba952-089f-4bee-b480-adb8d5d7eb11.jpg" alt="" loading="lazy" fetchpriority="low" decoding="async">
+                <img class="avatar-ring" src="Frames/frame-purple-staff.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
                 </span>
                 <span>Cazador</span>
               </a>
               <a class="smule-card" href="https://www.smule.com/CamiUwU888" target="_blank" rel="noopener" data-smule-user="CamiUwU888">
                 <span class="avatar-wrap">
-                  <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/8f/d6/6c0ddf79-6383-442a-b610-74f0b1f61707.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/8f/d6/6c0ddf79-6383-442a-b610-74f0b1f61707.jpg" alt="" loading="eager" fetchpriority="high">
-                <img class="avatar-ring" src="Frames/frame-purple-staff.png" alt="" aria-hidden="true">
+                  <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/8f/d6/6c0ddf79-6383-442a-b610-74f0b1f61707.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/8f/d6/6c0ddf79-6383-442a-b610-74f0b1f61707.jpg" alt="" loading="lazy" fetchpriority="low" decoding="async">
+                <img class="avatar-ring" src="Frames/frame-purple-staff.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
                 </span>
                 <span>Cami</span>
               </a>
               <a class="smule-card" href="https://www.smule.com/WagnerObando1" target="_blank" rel="noopener" data-smule-user="WagnerObando1">
                 <span class="avatar-wrap">
-                  <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/50/bd/b4c0f426-0f33-4d16-9494-faa6aab7b709.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/50/bd/b4c0f426-0f33-4d16-9494-faa6aab7b709.jpg" alt="" loading="eager" fetchpriority="high">
-                <img class="avatar-ring" src="Frames/frame-purple-staff.png" alt="" aria-hidden="true">
+                  <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/50/bd/b4c0f426-0f33-4d16-9494-faa6aab7b709.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/50/bd/b4c0f426-0f33-4d16-9494-faa6aab7b709.jpg" alt="" loading="lazy" fetchpriority="low" decoding="async">
+                <img class="avatar-ring" src="Frames/frame-purple-staff.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
                 </span>
                 <span>Wagner</span>
               </a>
               <a class="smule-card" href="https://www.smule.com/Silly_Girl97" target="_blank" rel="noopener" data-smule-user="Silly_Girl97">
                 <span class="avatar-wrap">
-                  <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/3a/7d/eb2e541f-d17d-4762-8d45-818d8725af32.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/3a/7d/eb2e541f-d17d-4762-8d45-818d8725af32.jpg" alt="" loading="eager" fetchpriority="high">
-                <img class="avatar-ring" src="Frames/frame-purple-staff.png" alt="" aria-hidden="true">
+                  <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/3a/7d/eb2e541f-d17d-4762-8d45-818d8725af32.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/3a/7d/eb2e541f-d17d-4762-8d45-818d8725af32.jpg" alt="" loading="lazy" fetchpriority="low" decoding="async">
+                <img class="avatar-ring" src="Frames/frame-purple-staff.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
                 </span>
                 <span>Krys</span>
               </a>
@@ -583,15 +581,15 @@
         </div>
         <div class="icons-row">
           <a class="icon-badge ib-1" href="https://www.youtube.com/@teampeachesoff" target="_blank" rel="noopener">
-            <span class="icon-circle"><img src="Logos/YoutubeLogo.png" alt="YouTube"></span>
+            <span class="icon-circle"><img src="Logos/YoutubeLogo.png" alt="YouTube" loading="lazy" decoding="async"></span>
             <span>YouTube</span>
           </a>
           <a class="icon-badge ib-2" href="https://www.tiktok.com/@team_peaches_off" target="_blank" rel="noopener">
-            <span class="icon-circle"><img src="Logos/TikTokLogo.png" alt="TikTok"></span>
+            <span class="icon-circle"><img src="Logos/TikTokLogo.png" alt="TikTok" loading="lazy" decoding="async"></span>
             <span>TikTok</span>
           </a>
           <a class="icon-badge ib-3" href="https://www.instagram.com/team_peaches_off" target="_blank" rel="noopener">
-            <span class="icon-circle"><img src="Logos/InstagramLogo.png" alt="Instagram"></span>
+            <span class="icon-circle"><img src="Logos/InstagramLogo.png" alt="Instagram" loading="lazy" decoding="async"></span>
             <span>Instagram</span>
           </a>
         </div>
@@ -664,7 +662,7 @@
   function playVideoWithSound(video){
     if(!video) return;
     video.muted = soundMuted;
-    video.volume = 1;
+    video.volume = 0.8;
     const attempt = video.play();
     if(attempt && attempt.catch){
       attempt.catch(()=>{
@@ -689,12 +687,15 @@
   function stopClipVideos(){
     document.querySelectorAll(".clip-video").forEach(v=>{ v.pause(); });
   }
+  function stopDuoVideos(){
+    document.querySelectorAll(".duo-video").forEach(v=>{ v.pause(); });
+  }
 
   /* ---------- música de fondo (pantalla 3 en adelante, en loop) ---------- */
   const bgMusic = document.getElementById("bg-music");
   function playBgMusic(){
     if(!bgMusic || !bgMusic.paused) return;
-    bgMusic.volume = 0.1;
+    bgMusic.volume = 0.3;
     bgMusic.muted = soundMuted;
     const attempt = bgMusic.play();
     if(attempt && attempt.catch){
@@ -723,6 +724,7 @@
     clearActiveTimers();
     screens.forEach((s,i)=> s.classList.toggle("is-active", i===index));
     if(index !== 1) stopClipVideos();
+    if(index !== 2) stopDuoVideos();
     if(index === 1) resetTapSequence();
     if(index === 2) playDuo();
     if(index === 3) playNosotros();
@@ -967,6 +969,7 @@
   }
 
   /* ---------- pantalla 5: smule + redes ---------- */
+  let smuleAvatarsRequested = false;
   function playRedes(){
     const el = document.getElementById("redes-screen");
     el.classList.remove("show-smule", "phase-2");
@@ -974,6 +977,12 @@
     el.classList.add("show-smule");
     const t = setTimeout(()=> el.classList.add("phase-2"), 900);
     activeTimers.push(t);
+    // Solo se piden las fotos de Smule la primera vez que se llega a esta pantalla, no al cargar
+    // la página: evita 7 peticiones de red innecesarias a un usuario que nunca llega tan lejos.
+    if(!smuleAvatarsRequested){
+      smuleAvatarsRequested = true;
+      loadSmuleAvatars();
+    }
   }
 
   /* ---------- pantalla 6: hora local de los streams ---------- */
@@ -1015,7 +1024,6 @@
     document.querySelectorAll(".curve-text").forEach((el)=> curveText(el));
     wireDuoVideos();
     wireClipVideos();
-    loadSmuleAvatars();
   });
 </script>
 </body>
