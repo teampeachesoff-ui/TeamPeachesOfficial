@@ -95,7 +95,17 @@
      lo soportan, y en los que sí, evita que el contenido se centre "hacia afuera" del área con
      scroll cuando no cabe). Así el encabezado SIEMPRE queda arriba con su propio espacio real y
      nunca se recorta ni se tapa contenido: si no cabe, se puede hacer scroll para verlo completo. */
-  .stage{width:100%; min-width:0; min-height:0; display:flex; align-items:center; align-items:safe center; justify-content:center; padding:clamp(.9rem,4vw,3rem); overflow-y:auto; overflow-anchor:none;}
+  .stage{
+    width:100%; min-width:0; min-height:0; display:flex; flex-direction:column;
+    justify-content:flex-start; align-items:center;
+    padding:clamp(.9rem,4vw,3rem); overflow-y:auto; overflow-anchor:none;
+  }
+  /* Centrado sin depender de "align-items:safe center" (soporte irregular en Safari/iOS,
+     donde silenciosamente cae al centrado normal y recorta por arriba si no cabe). Estos
+     pseudo-elementos con margin:auto empujan el contenido al centro cuando sobra espacio,
+     y su margen simplemente se colapsa a 0 (nunca a negativo) cuando no cabe -el contenido
+     queda anclado arriba y se puede hacer scroll para verlo completo, sin recortar nada-. */
+  .stage::before,.stage::after{content:""; flex:none; margin:auto 0; width:100%; height:0;}
 
   .copy{width:min(100%,720px); text-align:center; animation:rise 700ms ease both;}
   .label{font-family:"Grandstander",sans-serif; font-style:italic; font-weight:600; font-size:.95rem; color:var(--white); opacity:.85; margin:0 0 .4rem;}
@@ -172,7 +182,12 @@
     display:none !important; opacity:0 !important; pointer-events:none !important;
   }
   .clip-video{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000; z-index:0;}
-  .clip-mock{position:relative; z-index:1; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.55rem; text-align:center; padding:1.4rem;}
+  .clip-mock{position:relative; z-index:1; width:100%; height:100%; display:none; flex-direction:column; align-items:center; justify-content:center; gap:.55rem; text-align:center; padding:1.4rem;}
+  /* El placeholder NUNCA se ve encima del video por defecto (antes dependía de que el
+     evento "loadeddata" llegara a tiempo, y con preload="metadata" eso no siempre pasa,
+     dejando el texto/ícono pegado sobre el video ya reproduciéndose). Ahora solo aparece
+     si el video realmente falla (ver .broken-video más abajo). */
+  .clip.broken-video .clip-mock{display:flex;}
   .clip-icon,.clip-title,.clip-caption{position:relative; z-index:1;}
   .clip-title,.clip-caption{text-shadow:0 2px 10px rgba(0,0,0,.4);}
   .clip-icon{width:2.3rem; height:2.3rem; stroke-width:1.8; color:var(--white);}
@@ -224,8 +239,9 @@
     from{opacity:0; transform:translate(70%,45%) rotate(32deg) scale(.78);}
     to{opacity:1; transform:translate(16.94%,8.8%) rotate(9deg) scale(.96);}
   }
-  .fan-screen{width:100%; height:100%; display:flex; flex-direction:column; align-items:stretch; justify-content:flex-start; padding:.6rem; gap:0; overflow:hidden; color:var(--white); background:var(--pink-deep); position:relative; z-index:0;}
-  .duo-video{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000; z-index:1; display:none;}
+  .fan-screen{width:100%; height:100%; display:none; flex-direction:column; align-items:stretch; justify-content:flex-start; padding:.6rem; gap:0; overflow:hidden; color:var(--white); background:var(--pink-deep); position:relative; z-index:0;}
+  .duo-card.broken-video .fan-screen{display:flex;}
+  .duo-video{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000; z-index:1;}
   .scroll-feed .feed-item{
     flex:none; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.3);
     border-radius:.6rem; padding:.4rem .5rem; margin-bottom:.4rem; font-size:clamp(.58rem,2.4vw,.66rem); font-weight:600;
@@ -392,7 +408,7 @@
         <button id="clip-frame" type="button" class="clip-frame" aria-label="Toca la imagen para ver la siguiente escena">
           <span id="clip-sr" class="sr-only" aria-live="polite">Matar el dragón. Con audio chistoso incluido.</span>
           <div class="clip c1 is-current" data-clip="0" aria-hidden="true">
-            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="clip-video" src="videos/team-1.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
+            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="clip-video" src="videos/team-1.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.closest('.clip').classList.add('broken-video');"></video>
             <div class="clip-mock">
               <i data-lucide="mic-2" class="clip-icon"></i>
               <p class="clip-title">Cover del momento</p>
@@ -400,7 +416,7 @@
             </div>
           </div>
           <div class="clip c2" data-clip="1" aria-hidden="true">
-            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="clip-video" src="videos/team-2.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
+            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="clip-video" src="videos/team-2.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.closest('.clip').classList.add('broken-video');"></video>
             <div class="clip-mock">
               <i data-lucide="drama" class="clip-icon"></i>
               <p class="clip-title">Escena de doblaje</p>
@@ -408,7 +424,7 @@
             </div>
           </div>
           <div class="clip c3" data-clip="2" aria-hidden="true">
-            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="clip-video" src="videos/team-3.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
+            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="clip-video" src="videos/team-3.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.closest('.clip').classList.add('broken-video');"></video>
             <div class="clip-mock">
               <i data-lucide="flame" class="clip-icon"></i>
               <p class="clip-title">Matar el dragón</p>
@@ -416,7 +432,7 @@
             </div>
           </div>
           <div class="clip c4" data-clip="3" aria-hidden="true">
-            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="clip-video" src="videos/team-4.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
+            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="clip-video" src="videos/team-4.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.closest('.clip').classList.add('broken-video');"></video>
             <div class="clip-mock">
               <i data-lucide="radio" class="clip-icon"></i>
               <p class="clip-title">Fragmento de stream</p>
@@ -454,7 +470,7 @@
         <h2 class="title small duo-title dt-1 curve-text">Conoce gente talentosa</h2>
         <div class="duo-cards" id="duo-cards">
           <div class="duo-card dc-1">
-            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="duo-video" src="videos/comunidad.mp4" loop playsinline preload="metadata"></video>
+            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="duo-video" src="videos/comunidad.mp4" loop playsinline preload="metadata" onerror="this.style.display='none'; this.closest('.duo-card').classList.add('broken-video');"></video>
             <div class="fan-screen scroll-feed feed-alt">
               <div class="feed-item">👋 Nuevo en el team</div>
               <div class="feed-item">🔥 Post destacado</div>
@@ -465,7 +481,7 @@
             </div>
           </div>
           <div class="duo-card dc-2">
-            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="duo-video" src="videos/actividades.mp4" loop playsinline preload="metadata"></video>
+            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="duo-video" src="videos/actividades.mp4" loop playsinline preload="metadata" onerror="this.style.display='none'; this.closest('.duo-card').classList.add('broken-video');"></video>
             <div class="fan-screen scroll-feed">
               <div class="feed-item">📸 Reto semanal</div>
               <div class="feed-item">🎤 Cover del mes</div>
@@ -837,7 +853,7 @@
     if(prefersReducedMotion) return; // si el usuario pidió menos movimiento, que avance solo con tap
     const currentClipEl = clips[clipIndex];
     const v = currentClipEl ? currentClipEl.querySelector(".clip-video") : null;
-    const broken = !v || v.dataset.broken === "true";
+    const broken = !v || currentClipEl.classList.contains("broken-video");
     if(!broken) return; // hay video real: se espera a que termine (evento "ended"), no a un timer fijo
     if(clipProgressFill){
       requestAnimationFrame(()=>{
@@ -879,24 +895,17 @@
     wrap.classList.add("is-playing");
     cards.classList.add("is-playing");
     document.querySelectorAll(".duo-video").forEach((v)=>{
-      if(v.style.display === "block"){ v.currentTime = 0; playVideoWithSound(v); }
+      const broken = v.closest(".duo-card")?.classList.contains("broken-video");
+      if(!broken){ v.currentTime = 0; playVideoWithSound(v); }
     });
   }
   function wireDuoVideos(){
-    document.querySelectorAll(".duo-video").forEach((video)=>{
-      video.addEventListener("loadeddata", ()=>{
-        video.style.display = "block";
-        const mock = video.nextElementSibling;
-        if(mock) mock.style.display = "none";
-      });
-    });
+    /* El placeholder ya se maneja por CSS via .broken-video (solo aparece si el video
+       realmente falla, ver los onerror en el HTML) - aquí ya no hace falta escuchar
+       "loadeddata" para alternar displays. */
   }
   function wireClipVideos(){
     document.querySelectorAll(".clip-video").forEach((video)=>{
-      video.addEventListener("loadeddata", ()=>{
-        const mock = video.nextElementSibling;
-        if(mock && mock.classList.contains("clip-mock")) mock.style.display = "none";
-      });
       video.addEventListener("ended", ()=>{
         const clipEl = video.closest(".clip");
         const idx = clipEl ? parseInt(clipEl.dataset.clip, 10) : -1;
