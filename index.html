@@ -623,7 +623,7 @@
   function playVideoWithSound(video){
     if(!video) return;
     video.muted = soundMuted;
-    video.volume = 0.3;
+    video.volume = 0.8;
     const attempt = video.play();
     if(attempt && attempt.catch){
       attempt.catch(()=>{
@@ -653,7 +653,7 @@
   const bgMusic = document.getElementById("bg-music");
   function playBgMusic(){
     if(!bgMusic || !bgMusic.paused) return;
-    bgMusic.volume = 1;
+    bgMusic.volume = 0.3;
     bgMusic.muted = soundMuted;
     const attempt = bgMusic.play();
     if(attempt && attempt.catch){
