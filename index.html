@@ -151,7 +151,7 @@
   }
   .clip.is-current{opacity:1;}
   /* ---------- bloquear UI nativa del navegador sobre los <video> (PiP flotante, casting, menú de clic derecho, arrastrar/guardar) ---------- */
-  video{-webkit-user-select:none; user-select:none; -webkit-user-drag:none; user-drag:none; pointer-events:none;}
+  video{-webkit-user-select:none; user-select:none; -webkit-user-drag:none; user-drag:none;}
   video::-webkit-media-controls,
   video::-webkit-media-controls-enclosure,
   video::-webkit-media-controls-panel,
@@ -664,7 +664,7 @@
   function playVideoWithSound(video){
     if(!video) return;
     video.muted = soundMuted;
-    video.volume = 1.5;
+    video.volume = 0.8;
     const attempt = video.play();
     if(attempt && attempt.catch){
       attempt.catch(()=>{
@@ -694,7 +694,7 @@
   const bgMusic = document.getElementById("bg-music");
   function playBgMusic(){
     if(!bgMusic || !bgMusic.paused) return;
-    bgMusic.volume = 0.1;
+    bgMusic.volume = 0.3;
     bgMusic.muted = soundMuted;
     const attempt = bgMusic.play();
     if(attempt && attempt.catch){
