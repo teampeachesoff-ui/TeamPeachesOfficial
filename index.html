@@ -250,8 +250,12 @@
   .smule-card:hover{transform:translateY(-3px);}
   .smule-card:focus-visible{outline:3px solid var(--white); outline-offset:4px; border-radius:.7rem;}
   .avatar-wrap{position:relative; display:inline-flex;}
-  .smule-card img{width:4.42rem; height:4.42rem; border-radius:50%; object-fit:cover; border:3px solid var(--white); box-shadow:0 8px 18px rgba(120,10,60,.28); background:var(--pink-deep);}
-  .avatar-ring{position:absolute; top:50%; left:50%; width:135%; height:135%; transform:translate(-50%,-50%); pointer-events:none; z-index:1;}
+  .smule-card img{width:4.42rem; height:4.42rem; border-radius:50%; object-fit:cover; box-shadow:0 8px 18px rgba(120,10,60,.28); background:var(--pink-deep);}
+  .avatar-wrap .avatar-ring{
+    position:absolute; top:50%; left:50%; width:135%; height:135%; transform:translate(-50%,-50%);
+    pointer-events:none; z-index:2;
+    border-radius:0; border:none; background:none; box-shadow:none; object-fit:contain;
+  }
   .smule-card span:last-child{font-size:.72rem; font-weight:700; color:var(--white); text-align:center; word-break:break-word; line-height:1.2;}
   .icons-row{display:flex; gap:1.3rem; justify-content:center; margin-top:1.8rem;}
   .icon-badge{
@@ -318,7 +322,6 @@
     <div class="stage">
       <div class="copy">
         <h1 id="t1" class="title"><img src="Logos/Peaches.png" alt="Peaches" class="title-logo"></h1>
-        <p class="text">Streams, risas y un team que no se guarda nada. Presiona empezar para conocernos.</p>
         <button id="start-button" type="button" class="btn-primary">
           <span>Empezar</span><i data-lucide="arrow-right" class="w-5 h-5"></i>
         </button>
