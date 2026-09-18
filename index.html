@@ -87,7 +87,7 @@
 
   .brandbar{
     display:flex; align-items:center; justify-content:center; gap:.5rem;
-    padding:clamp(.8rem,3vw,1.4rem) 1rem .1rem;
+    padding:clamp(.8rem,3vw,1.4rem) 1rem;
   }
   .brandbar img{height:4.2rem; width:auto; display:block;}
 
@@ -99,9 +99,15 @@
     width:100%; min-width:0; min-height:0; display:flex; flex-direction:column;
     justify-content:flex-start; align-items:center;
     padding:clamp(.9rem,4vw,3rem); overflow-y:auto; overflow-anchor:none;
-    -webkit-mask-image:linear-gradient(to bottom, black calc(100% - 1.4rem), transparent 100%);
-    mask-image:linear-gradient(to bottom, black calc(100% - 1.4rem), transparent 100%);
+    /* Scrollbar personalizada: solo aparece cuando el contenido de verdad no cabe (overflow-y:auto
+       no la muestra si no hace falta), y cuando aparece es una barra blanca delgada y "flotante"
+       sobre track transparente -nunca la genérica gris del navegador-. */
+    scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.55) transparent;
   }
+  .stage::-webkit-scrollbar{width:6px;}
+  .stage::-webkit-scrollbar-track{background:transparent;}
+  .stage::-webkit-scrollbar-thumb{background:rgba(255,255,255,.55); border-radius:999px;}
+  .stage::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.8);}
   /* Centrado sin depender de "align-items:safe center" (soporte irregular en Safari/iOS,
      donde silenciosamente cae al centrado normal y recorta por arriba si no cabe). Estos
      pseudo-elementos con margin:auto empujan el contenido al centro cuando sobra espacio,
