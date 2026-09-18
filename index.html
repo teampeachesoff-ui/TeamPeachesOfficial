@@ -150,6 +150,15 @@
     position:absolute; inset:0; opacity:0; transition:opacity 420ms ease;
   }
   .clip.is-current{opacity:1;}
+  /* ---------- bloquear UI nativa del navegador sobre los <video> (PiP flotante, casting, menú de clic derecho, arrastrar/guardar) ---------- */
+  video{-webkit-user-select:none; user-select:none; -webkit-user-drag:none; user-drag:none; pointer-events:none;}
+  video::-webkit-media-controls,
+  video::-webkit-media-controls-enclosure,
+  video::-webkit-media-controls-panel,
+  video::-webkit-media-controls-start-playback-button,
+  video::-internal-media-controls-overlay-cast-button{
+    display:none !important; opacity:0 !important; pointer-events:none !important;
+  }
   .clip-video{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000; z-index:0;}
   .clip-mock{position:relative; z-index:1; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.55rem; text-align:center; padding:1.4rem;}
   .clip-icon,.clip-title,.clip-caption{position:relative; z-index:1;}
@@ -274,6 +283,12 @@
 
   /* ---------- pantalla: dinámica ---------- */
   .dyn-wrap{width:min(100%,600px); text-align:left; animation:rise 700ms ease both; margin:0 auto;}
+  /* La pantalla de Dinámica tiene mucho texto: el header (brandbar) ya reserva su propia fila
+     en el grid, pero si el contenido es más alto que el espacio disponible, el centrado vertical
+     del .stage empuja la parte de arriba fuera de vista y no se puede hacer scroll hasta ella.
+     Aquí anclamos el contenido arriba para que nunca quede tapado por el encabezado y siempre
+     se pueda hacer scroll para ver todo. */
+  #screen-6 .stage{align-items:flex-start;}
   .dyn-cards{display:grid; gap:.75rem; margin-top:1.1rem;}
   .dyn-card{
     background:var(--white); color:var(--ink); border-radius:1.2rem; padding:.95rem 1.1rem;
@@ -303,6 +318,32 @@
   @media (min-width:900px){
     .sequence{width:min(100%,640px);}
     .duo-cards{width:min(30vw, 328px, calc(48vh * 328 / 728));}
+  }
+
+  /* ---------- pantalla 3: aprovechar espacio lateral cuando la ventana es ancha ---------- */
+  /* Los textos se colocan a los lados de los teléfonos (izquierda/derecha) y estos
+     crecen un 20%. Si no hay espacio lateral (ventana angosta o alta) todo vuelve al
+     layout apilado de siempre. Dentro de este modo, el tamaño de teléfonos y texto
+     escala en función lineal del ancho (clamp con vw) y el texto SIEMPRE puede hacer
+     wrap a varias líneas: nunca se recorta ni se trunca. */
+  @media (min-width:900px) and (min-aspect-ratio:1/1){
+    .duo-wrap{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+      grid-template-areas:"t1 cards t2";
+      align-items:center;
+      column-gap:clamp(1rem,3vw,3rem);
+      width:min(100%,1240px);
+      text-align:initial;
+    }
+    .duo-wrap .dt-1{grid-area:t1; text-align:right;}
+    .duo-wrap .dt-2{grid-area:t2; text-align:left;}
+    .duo-wrap .duo-cards{grid-area:cards;}
+    .duo-wrap .duo-title{
+      font-size:clamp(1.05rem, 2vw, 1.85rem);
+      overflow-wrap:break-word;
+    }
+    .duo-cards{width:calc(min(30vw, 328px, calc(48vh * 328 / 728)) * 1.2);}
   }
   @media (max-height:560px){
     .brandbar{display:none;}
@@ -345,7 +386,7 @@
         <button id="clip-frame" type="button" class="clip-frame" aria-label="Toca la imagen para ver la siguiente escena">
           <span id="clip-sr" class="sr-only" aria-live="polite">Matar el dragón. Con audio chistoso incluido.</span>
           <div class="clip c1 is-current" data-clip="0" aria-hidden="true">
-            <video class="clip-video" src="videos/team-1.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
+            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="clip-video" src="videos/team-1.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
             <div class="clip-mock">
               <i data-lucide="mic-2" class="clip-icon"></i>
               <p class="clip-title">Cover del momento</p>
@@ -353,7 +394,7 @@
             </div>
           </div>
           <div class="clip c2" data-clip="1" aria-hidden="true">
-            <video class="clip-video" src="videos/team-2.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
+            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="clip-video" src="videos/team-2.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
             <div class="clip-mock">
               <i data-lucide="drama" class="clip-icon"></i>
               <p class="clip-title">Escena de doblaje</p>
@@ -361,7 +402,7 @@
             </div>
           </div>
           <div class="clip c3" data-clip="2" aria-hidden="true">
-            <video class="clip-video" src="videos/team-3.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
+            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="clip-video" src="videos/team-3.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
             <div class="clip-mock">
               <i data-lucide="flame" class="clip-icon"></i>
               <p class="clip-title">Matar el dragón</p>
@@ -369,7 +410,7 @@
             </div>
           </div>
           <div class="clip c4" data-clip="3" aria-hidden="true">
-            <video class="clip-video" src="videos/team-4.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
+            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="clip-video" src="videos/team-4.mp4" playsinline preload="metadata" onerror="this.style.display='none'; this.dataset.broken='true';"></video>
             <div class="clip-mock">
               <i data-lucide="radio" class="clip-icon"></i>
               <p class="clip-title">Fragmento de stream</p>
@@ -407,7 +448,7 @@
         <h2 class="title small duo-title dt-1 curve-text">Conoce gente talentosa</h2>
         <div class="duo-cards" id="duo-cards">
           <div class="duo-card dc-1">
-            <video class="duo-video" src="videos/comunidad.mp4" loop playsinline preload="metadata"></video>
+            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="duo-video" src="videos/comunidad.mp4" loop playsinline preload="metadata"></video>
             <div class="fan-screen scroll-feed feed-alt">
               <div class="feed-item">👋 Nuevo en el team</div>
               <div class="feed-item">🔥 Post destacado</div>
@@ -418,7 +459,7 @@
             </div>
           </div>
           <div class="duo-card dc-2">
-            <video class="duo-video" src="videos/actividades.mp4" loop playsinline preload="metadata"></video>
+            <video disablePictureInPicture disableRemotePlayback controlsList="nodownload noremoteplayback nofullscreen noplaybackrate" oncontextmenu="return false" draggable="false" class="duo-video" src="videos/actividades.mp4" loop playsinline preload="metadata"></video>
             <div class="fan-screen scroll-feed">
               <div class="feed-item">📸 Reto semanal</div>
               <div class="feed-item">🎤 Cover del mes</div>
@@ -623,7 +664,7 @@
   function playVideoWithSound(video){
     if(!video) return;
     video.muted = soundMuted;
-    video.volume = 1;
+    video.volume = 0.8;
     const attempt = video.play();
     if(attempt && attempt.catch){
       attempt.catch(()=>{
@@ -653,7 +694,7 @@
   const bgMusic = document.getElementById("bg-music");
   function playBgMusic(){
     if(!bgMusic || !bgMusic.paused) return;
-    bgMusic.volume = 0.1;
+    bgMusic.volume = 0.3;
     bgMusic.muted = soundMuted;
     const attempt = bgMusic.play();
     if(attempt && attempt.catch){
@@ -958,6 +999,14 @@
 
   document.addEventListener("keydown", (e)=>{
     if(e.key === "Escape" && currentScreen > 0) showScreen(0);
+  });
+
+  /* ---------- red de seguridad: bloquear menú contextual / arrastre sobre cualquier <video> ---------- */
+  document.addEventListener("contextmenu", (e)=>{
+    if(e.target && e.target.tagName === "VIDEO") e.preventDefault();
+  });
+  document.addEventListener("dragstart", (e)=>{
+    if(e.target && e.target.tagName === "VIDEO") e.preventDefault();
   });
 
   document.addEventListener("DOMContentLoaded", ()=>{
