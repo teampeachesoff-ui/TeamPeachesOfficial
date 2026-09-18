@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Peaches</title>
+<title>Peaches Oficial</title>
 <link rel="icon" type="image/jpeg" href="Logos/PeachesLogo.jpeg">
 <link rel="preload" as="image" href="Logos/YoutubeLogo.png">
 <link rel="preload" as="image" href="Logos/TikTokLogo.png">
@@ -11,6 +11,7 @@
 <link rel="preload" as="image" href="Frames/frame-gold-founders.png">
 <link rel="preload" as="image" href="Frames/frame-purple-staff.png">
 <link rel="preload" as="image" href="Logos/BannerPeaches.png">
+<link rel="preload" as="image" href="Logos/Peaches.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Grandstander:ital,wght@0,500;0,600;0,700;0,800;1,600;1,700;1,800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.462.0/dist/umd/lucide.min.js"></script>
@@ -87,8 +88,7 @@
     display:flex; align-items:center; justify-content:center; gap:.5rem;
     padding:clamp(.8rem,3vw,1.4rem) 1rem .1rem;
   }
-  .brandbar img{height:2.1rem; width:auto; display:block;}
-  .brandbar span{font-family:"Grandstander",sans-serif; font-weight:800; font-style:italic; font-size:1rem; letter-spacing:.02em;}
+  .brandbar img{height:4.2rem; width:auto; display:block;}
 
   .stage{width:100%; min-width:0; min-height:0; display:flex; align-items:center; justify-content:center; padding:clamp(.9rem,4vw,3rem); overflow-y:auto;}
 
@@ -100,6 +100,7 @@
     text-shadow:0 4px 0 rgba(0,0,0,.08);
   }
   .title.small{font-size:clamp(1.6rem,4.6vw,2.3rem);}
+  .title-logo{display:block; margin:0 auto; width:auto; height:auto; max-width:100%; max-height:clamp(4.5rem,20vw,7.5rem);}
   .text{max-width:56ch; margin:0 auto; font-size:clamp(1rem,2vw,1.1rem); line-height:1.6; color:rgba(255,255,255,.94); text-wrap:balance;}
 
   .btn-primary,.btn-secondary,.btn-sound{
@@ -187,7 +188,7 @@
   }
   .duo-card{
     position:absolute; inset:0; margin:auto; border-radius:1.4rem;
-    border:3px solid var(--white); overflow:hidden; opacity:0;
+    border:3px solid #180E1D; overflow:hidden; opacity:0;
     box-shadow:0 20px 45px rgba(120,10,60,.32);
   }
   .dc-1{z-index:1; transform:translate(-16.94%,-8.8%) rotate(-9deg) scale(.96);}
@@ -251,16 +252,12 @@
   .avatar-wrap{position:relative; display:inline-flex;}
   .smule-card img{width:4.42rem; height:4.42rem; border-radius:50%; object-fit:cover; border:3px solid var(--white); box-shadow:0 8px 18px rgba(120,10,60,.28); background:var(--pink-deep);}
   .avatar-ring{position:absolute; top:50%; left:50%; width:135%; height:135%; transform:translate(-50%,-50%); pointer-events:none; z-index:1;}
-  .crown-badge{
-    position:absolute; top:-.35rem; right:-.4rem; width:1.15rem; height:1.15rem;
-    color:#ffd34d; background:var(--pink-darker); border-radius:50%; padding:.2rem;
-    box-shadow:0 4px 10px rgba(0,0,0,.28); border:2px solid var(--white);
-  }
   .smule-card span:last-child{font-size:.72rem; font-weight:700; color:var(--white); text-align:center; word-break:break-word; line-height:1.2;}
   .icons-row{display:flex; gap:1.3rem; justify-content:center; margin-top:1.8rem;}
   .icon-badge{
     opacity:0; transform:translate(60px,-20px) rotate(20deg) scale(.7);
     display:flex; flex-direction:column; align-items:center; gap:.4rem; color:var(--white); font-weight:700; font-size:.78rem;
+    text-decoration:none; cursor:pointer;
   }
   .icon-circle{width:3.2rem; height:3.2rem; display:flex; align-items:center; justify-content:center; overflow:visible; padding:0;}
   .icon-circle svg{width:1.5rem; height:1.5rem;}
@@ -317,12 +314,10 @@
     <div class="bg"></div>
     <div class="brandbar" aria-hidden="true">
       <img src="Logos/BannerPeaches.png" alt="Peaches">
-      <span>Peaches</span>
     </div>
     <div class="stage">
       <div class="copy">
-        <p class="label">Una comunidad con sabor</p>
-        <h1 id="t1" class="title">Peaches</h1>
+        <h1 id="t1" class="title"><img src="Logos/Peaches.png" alt="Peaches" class="title-logo"></h1>
         <p class="text">Streams, risas y un team que no se guarda nada. Presiona empezar para conocernos.</p>
         <button id="start-button" type="button" class="btn-primary">
           <span>Empezar</span><i data-lucide="arrow-right" class="w-5 h-5"></i>
@@ -337,7 +332,6 @@
     <div class="bg alt"></div>
     <div class="brandbar" aria-hidden="true">
       <img src="Logos/BannerPeaches.png" alt="Peaches">
-      <span>Peaches</span>
     </div>
     <div class="stage">
       <div class="sequence">
@@ -404,7 +398,6 @@
     <div class="bg"></div>
     <div class="brandbar" aria-hidden="true">
       <img src="Logos/BannerPeaches.png" alt="Peaches">
-      <span>Peaches</span>
     </div>
     <div class="stage">
       <div class="duo-wrap" id="duo-wrap">
@@ -447,7 +440,6 @@
     <div class="bg alt"></div>
     <div class="brandbar" aria-hidden="true">
       <img src="Logos/BannerPeaches.png" alt="Peaches">
-      <span>Peaches</span>
     </div>
     <div class="stage">
       <div style="width:min(100%,620px); margin:0 auto; text-align:center;">
@@ -480,7 +472,6 @@
     <div class="bg"></div>
     <div class="brandbar" aria-hidden="true">
       <img src="Logos/BannerPeaches.png" alt="Peaches">
-      <span>Peaches</span>
     </div>
     <div class="stage">
       <div class="redes-screen" id="redes-screen">
@@ -493,7 +484,6 @@
                 <span class="avatar-wrap">
                   <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/f9/8e/6b2576ca-02f3-4a17-8711-c6b1cf2a6876.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/f9/8e/6b2576ca-02f3-4a17-8711-c6b1cf2a6876.jpg" alt="" loading="eager" fetchpriority="high">
                   <img class="avatar-ring" src="Frames/frame-gold-founders.png" alt="" aria-hidden="true">
-                  <i data-lucide="crown" class="crown-badge" aria-hidden="true"></i>
                 </span>
                 <span>Alix</span>
               </a>
@@ -501,7 +491,6 @@
                 <span class="avatar-wrap">
                   <img src="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/f0/4e/ec52865d-af98-4641-836d-f5fab8284b2a.jpg" data-fallback="https://c-cf.cdn.smule.com/smule-gg-uw1-z-1/account/picture/f0/4e/ec52865d-af98-4641-836d-f5fab8284b2a.jpg" alt="" loading="eager" fetchpriority="high">
                   <img class="avatar-ring" src="Frames/frame-gold-founders.png" alt="" aria-hidden="true">
-                  <i data-lucide="crown" class="crown-badge" aria-hidden="true"></i>
                 </span>
                 <span>Eryck</span>
               </a>
@@ -549,18 +538,18 @@
           </div>
         </div>
         <div class="icons-row">
-          <div class="icon-badge ib-1">
+          <a class="icon-badge ib-1" href="https://www.youtube.com/@teampeachesoff" target="_blank" rel="noopener">
             <span class="icon-circle"><img src="Logos/YoutubeLogo.png" alt="YouTube"></span>
             <span>YouTube</span>
-          </div>
-          <div class="icon-badge ib-2">
+          </a>
+          <a class="icon-badge ib-2" href="https://www.tiktok.com/@team_peaches_off" target="_blank" rel="noopener">
             <span class="icon-circle"><img src="Logos/TikTokLogo.png" alt="TikTok"></span>
             <span>TikTok</span>
-          </div>
-          <div class="icon-badge ib-3">
+          </a>
+          <a class="icon-badge ib-3" href="https://www.instagram.com/team_peaches_off" target="_blank" rel="noopener">
             <span class="icon-circle"><img src="Logos/InstagramLogo.png" alt="Instagram"></span>
             <span>Instagram</span>
-          </div>
+          </a>
         </div>
       </div>
     </div>
@@ -575,7 +564,6 @@
     <div class="bg alt"></div>
     <div class="brandbar" aria-hidden="true">
       <img src="Logos/BannerPeaches.png" alt="Peaches">
-      <span>Peaches</span>
     </div>
     <div class="stage">
       <div class="dyn-wrap">
@@ -632,7 +620,7 @@
   function playVideoWithSound(video){
     if(!video) return;
     video.muted = soundMuted;
-    video.volume = 1;
+    video.volume = 0.3;
     const attempt = video.play();
     if(attempt && attempt.catch){
       attempt.catch(()=>{
@@ -662,7 +650,7 @@
   const bgMusic = document.getElementById("bg-music");
   function playBgMusic(){
     if(!bgMusic || !bgMusic.paused) return;
-    bgMusic.volume = 0.3;
+    bgMusic.volume = 1;
     bgMusic.muted = soundMuted;
     const attempt = bgMusic.play();
     if(attempt && attempt.catch){
