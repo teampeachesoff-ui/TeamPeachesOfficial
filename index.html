@@ -135,6 +135,15 @@
     display:flex; flex-direction:column; align-items:center;
   }
 
+  /* ---------- pantalla 1: logo + Empezar centrados en la página ABSOLUTA ---------- */
+  .page-center{
+    position:absolute; inset:0; z-index:2;
+    display:flex; align-items:center; justify-content:center;
+    padding:1rem; pointer-events:none;
+  }
+  .page-center .fit-content{width:auto; max-width:100%; transform-origin:center center;}
+  .page-center .fit-content, .page-center .copy{pointer-events:auto;}
+
   .copy{width:min(100%,720px); text-align:center; animation:rise 700ms ease both;}
   .label{font-family:"Grandstander",sans-serif; font-style:italic; font-weight:600; font-size:.95rem; color:var(--white); opacity:.85; margin:0 0 .4rem;}
   .title{
@@ -425,7 +434,14 @@
     <div class="brandbar" aria-hidden="true">
       <img src="Logos/BannerPeaches.png" alt="Peaches">
     </div>
-    <div class="stage">
+    <div class="stage"></div>
+    <!-- El logo grande + "Empezar" se centran respecto al tamaño ABSOLUTO de la página
+         completa (ambos ejes), no respecto al espacio que deja el encabezado. Por eso
+         viven en esta capa superpuesta a toda la pantalla (position:absolute;inset:0)
+         en vez de dentro de .stage. Si en pantallas muy bajas llegara a tocar el
+         encabezado, se reescala como conjunto (ver centerScreen1() en el script) sin
+         dejar de estar centrado. -->
+    <div class="page-center" aria-hidden="false">
       <div class="fit-content">
         <div class="copy">
           <h1 id="t1" class="title"><img src="Logos/Peaches.png" alt="Peaches" class="title-logo"></h1>
@@ -790,6 +806,39 @@
     activeTimers = [];
   }
 
+  /* ---------- pantalla 1: logo + Empezar centrados respecto al tamaño ABSOLUTO
+     de la página, en ambos ejes, siempre -- no respecto al hueco bajo el encabezado.
+     Si en una pantalla muy baja el bloque centrado llegara a tocar el encabezado
+     (el único elemento real que hay que evitar en esta pantalla, ya que el pie es
+     un div vacío), se reescala como conjunto manteniendo el centro exacto. */
+  function centerScreen1(){
+    const screen = document.getElementById("screen-1");
+    const wrap = screen && screen.querySelector(".page-center");
+    const content = wrap && wrap.querySelector(".fit-content");
+    const brand = screen && screen.querySelector(".brandbar");
+    const shell = document.querySelector(".shell");
+    if(!screen || !wrap || !content || !brand || !shell) return;
+    content.style.transform = "none";
+    const shellRect = shell.getBoundingClientRect();
+    const brandRect = brand.getBoundingClientRect();
+    const centerY = shellRect.height / 2;
+    const topLimit = brandRect.bottom - shellRect.top;
+    const availableAbove = centerY - topLimit;
+    const availableBelow = shellRect.height - centerY;
+    const maxHalfHeight = Math.max(Math.min(availableAbove, availableBelow), 24);
+    const naturalHalfHeight = content.scrollHeight / 2;
+    let scale = 1;
+    if(naturalHalfHeight > maxHalfHeight){
+      scale = Math.max(maxHalfHeight / naturalHalfHeight, 0.35);
+    }
+    const maxWidth = shellRect.width - 32;
+    const naturalWidth = content.scrollWidth;
+    if(naturalWidth * scale > maxWidth){
+      scale = Math.min(scale, Math.max(maxWidth / naturalWidth, 0.35));
+    }
+    content.style.transform = scale < 0.999 ? "scale(" + scale + ")" : "none";
+  }
+
   /* ---------- ajuste de tamaño en conjunto ("fit-to-space") ----------
      Regla fija: los elementos nunca se pueden tapar entre sí ni con el
      encabezado/pie de página. Por defecto el contenido de una pantalla NUNCA
@@ -812,6 +861,7 @@
     }
   }
   function fitCurrentScreen(){
+    if(currentScreen === 0){ centerScreen1(); return; }
     fitStageContent(screens[currentScreen]);
   }
   let fitRaf = null;
