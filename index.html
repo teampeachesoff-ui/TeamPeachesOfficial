@@ -82,8 +82,8 @@
   .screen{
     position:absolute; inset:0;
     display:grid; grid-template-rows:auto 1fr auto;
-    opacity:0; visibility:hidden; transform:scale(1.02);
-    transition:opacity 600ms ease, transform 800ms cubic-bezier(.2,.7,.2,1), visibility 0s linear 600ms, content-visibility 0s linear 600ms;
+    opacity:0; visibility:hidden; transform:scale(1);
+    transition:opacity 600ms ease, visibility 0s linear 600ms, content-visibility 0s linear 600ms;
     pointer-events:none;
     /* Rendimiento: mientras una pantalla no está activa, el navegador se salta por completo su
        layout/estilo/pintado (videos, íconos, gradientes...). Se activa 600ms después de dejar de
@@ -92,12 +92,22 @@
   }
   .screen.is-active{
     opacity:1; visibility:visible; transform:scale(1);
-    transition:opacity 600ms ease, transform 800ms cubic-bezier(.2,.7,.2,1);
+    transition:opacity 600ms ease;
     pointer-events:auto;
     content-visibility:visible;
   }
 
   .bg{position:absolute; inset:0; z-index:-2; background:var(--pink);}
+  /* PUNTITOS FIJOS. Al entrar a una pantalla, el .screen hace un zoom suave 1.02 → 1 (@keyframes, clase
+     .zoom-in que pone showScreen() y quita a los 850 ms). El .bg (con los puntitos) lleva el zoom inverso
+     1/1.02 con la misma duración y curva, así el producto es ≈1 en todo momento y los puntitos NO crecen,
+     se achican ni se desplazan; solo el contenido hace el zoom. Al salir no hay zoom (solo el fade), para
+     que los puntitos tampoco se muevan en la pantalla que se va. El único momento en que los puntitos
+     animan es el "pop" del intro de la portada. */
+  .screen.zoom-in{animation:screenZoomIn 800ms cubic-bezier(.2,.7,.2,1);}
+  .screen.zoom-in .bg{animation:bgCounterZoom 800ms cubic-bezier(.2,.7,.2,1);}
+  @keyframes screenZoomIn{from{transform:scale(1.02);} to{transform:scale(1);}}
+  @keyframes bgCounterZoom{from{transform:scale(.98039);} to{transform:none;}}
   .bg::before{
     content:""; position:absolute; inset:0;
     background-image:radial-gradient(rgba(255,255,255,.55) 1.6px, transparent 1.8px);
@@ -220,12 +230,17 @@
      "reducir movimiento") la portada se ve normal, como antes. */
   .intro{
     display:none; position:fixed; inset:0; z-index:100; overflow:hidden;
-    background:transparent; /* transparente a propósito: si el video tarda/falla se ve el rosado, no negro */
+    background:#F74095; /* mismo tono del video: rellena los laterales cuando la pantalla es más ancha que el video */
   }
   html.intro-pending .intro{display:block;}
+  /* El video SIEMPRE ocupa todo el alto (del pixel 1 al último), sin recortarse arriba/abajo,
+     y va centrado en horizontal para que el durazno quede siempre en el centro:
+       · pantalla más ancha que el video → sobran laterales, que se rellenan con el rosado del .intro
+       · pantalla más angosta (celular vertical) → se recortan los laterales, parejo a ambos lados. */
   .intro video{
-    position:absolute; inset:0; width:100%; height:100%; display:block;
-    object-fit:cover; background:transparent; pointer-events:none;
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    height:100%; width:auto; max-width:none; display:block;
+    background:transparent; pointer-events:none;
   }
   .intro.is-leaving{opacity:0; pointer-events:none;} /* la duración del fade la pone el script (FADE_MS) */
 
@@ -1091,10 +1106,18 @@
   window.addEventListener("orientationchange", scheduleFit);
   window.addEventListener("load", scheduleFit);
 
+  let zoomTimer = null;
   function showScreen(index){
     currentScreen = index;
     clearActiveTimers();
     screens.forEach((s,i)=> s.classList.toggle("is-active", i===index));
+    // Zoom suave de entrada (1.02 → 1) solo para el contenido; el fondo con los puntitos no se mueve (ver CSS).
+    const entering = screens[index];
+    screens.forEach((s)=> s.classList.remove("zoom-in"));
+    void entering.offsetWidth;
+    entering.classList.add("zoom-in");
+    clearTimeout(zoomTimer);
+    zoomTimer = setTimeout(()=> entering.classList.remove("zoom-in"), 850);
     if(index !== 1) stopClipVideos();
     if(index !== 2) stopDuoVideos();
     if(index === 1) resetTapSequence();
