@@ -5,6 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Peaches Oficial</title>
 <link rel="icon" type="image/jpeg" href="Logos/PeachesLogo.jpeg">
+<!-- Intro: se marca ANTES del primer pintado para que los puntitos, el logo y el botón
+     de la portada arranquen ocultos (y no haya un parpadeo). Si el usuario tiene
+     "reducir movimiento" no se activa nada y la página se ve normal, sin intro.
+     El timeout es solo una red de seguridad: pase lo que pase, a los 12 s la portada
+     queda visible y el video de intro fuera del camino. -->
+<script>
+  (function(){
+    var r = document.documentElement;
+    try{ if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return; }catch(e){}
+    r.classList.add("intro-pending");
+    setTimeout(function(){
+      if(!r.classList.contains("intro-pending")) return;
+      r.classList.remove("intro-pending", "intro-pop");
+      var i = document.getElementById("intro"); if(i) i.remove();
+      var c = document.querySelector(".dots-canvas"); if(c) c.remove();
+    }, 12000);
+  })();
+</script>
 <!-- Solo se precarga lo que se ve en el primer pantallazo (pantalla 1).
      Todo lo demás (iconos de redes, marcos, avatares de Smule) pertenece a
      pantallas a las que se llega varios "Siguiente" después, así que se
@@ -193,6 +211,45 @@
 
   @keyframes rise{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
   @keyframes blockIn{to{opacity:1; transform:translateY(0) scale(1);}}
+
+  /* ---------- INTRO: video → portada ----------
+     Orden: 1) video (sobre la portada rosada) → 2) el video se desvanece a transparente
+     y deja ver el rosado (nunca negro) → 3) los puntitos de los bordes hacen "pop" de
+     afuera hacia adentro (1 s, ver popDots() en el script) → 4) logo y botón hacen "pop".
+     Todo depende de la clase .intro-pending en <html>; sin ella (o sin JS, o con
+     "reducir movimiento") la portada se ve normal, como antes. */
+  .intro{
+    display:none; position:fixed; inset:0; z-index:100; overflow:hidden;
+    background:transparent; /* transparente a propósito: si el video tarda/falla se ve el rosado, no negro */
+  }
+  html.intro-pending .intro{display:block;}
+  .intro video{
+    position:absolute; inset:0; width:100%; height:100%; display:block;
+    object-fit:cover; background:transparent; pointer-events:none;
+  }
+  .intro.is-leaving{opacity:0; pointer-events:none;} /* la duración del fade la pone el script (FADE_MS) */
+
+  /* Estado inicial oculto de la portada mientras dura el intro */
+  html.intro-pending:not(.intro-pop) #screen-1 .bg::before,
+  html.intro-pending:not(.intro-pop) #screen-1 .brandbar img,
+  html.intro-pending:not(.intro-pop) #screen-1 .title-logo,
+  html.intro-pending:not(.intro-pop) #screen-1 #start-button{opacity:0;}
+  html.intro-pending:not(.intro-pop) #screen-1 #start-button{pointer-events:none;}
+
+  /* Los puntitos se dibujan en un <canvas> solo durante el "pop" y luego se cambia,
+     sin salto, al fondo CSS de siempre (.bg::before). */
+  .dots-canvas{position:absolute; inset:0; width:100%; height:100%; pointer-events:none;}
+
+  /* Pop de logo y botón. fill-mode "backwards" (no "both"): al terminar se suelta y no
+     pisa el hover/active del botón. */
+  @keyframes introPop{
+    0%  {opacity:0; transform:scale(.5);  animation-timing-function:cubic-bezier(.2,.9,.3,1);}
+    60% {opacity:1; transform:scale(1.09); animation-timing-function:cubic-bezier(.4,0,.2,1);}
+    100%{opacity:1; transform:scale(1);}
+  }
+  html.intro-pop #screen-1 .brandbar img,
+  html.intro-pop #screen-1 .title-logo{animation:introPop 720ms backwards;}
+  html.intro-pop #screen-1 #start-button{animation:introPop 640ms 200ms backwards;}
 
   /* ---------- pantalla: el mejor team (tap para avanzar) ---------- */
   .sequence{width:min(100%,520px); display:grid; gap:.9rem; animation:rise 700ms ease both; margin:0 auto;}
@@ -426,6 +483,13 @@
 </style>
 </head>
 <body>
+<!-- INTRO · va PRIMERO en el body para que el video empiece a bajar/reproducirse lo antes
+     posible. Va muted+autoplay+playsinline porque es lo único que los navegadores dejan
+     arrancar solo (con sonido lo bloquean). La portada rosada de abajo es el respaldo:
+     si el video falla, no carga o el navegador no lo deja reproducir, se salta el intro. -->
+<div id="intro" class="intro" aria-hidden="true">
+  <video id="intro-video" src="videos/Intro.mp4" autoplay muted playsinline preload="auto" disablePictureInPicture disableRemotePlayback oncontextmenu="return false" draggable="false"></video>
+</div>
 <main class="shell" aria-live="polite">
 
   <!-- PANTALLA 1 · Portada -->
@@ -735,6 +799,158 @@
 
 <audio id="bg-music" src="audios/background.mp3" loop preload="auto"></audio>
 </main>
+
+<script>
+  /* ---------- INTRO: video → fade a transparente → puntitos pop → logo/botón pop ----------
+     Script aparte (no depende del resto): si algo más fallara, el intro igual termina. */
+  (function(){
+    const root = document.documentElement;
+    const intro = document.getElementById("intro");
+    const video = document.getElementById("intro-video");
+    if(!intro || !video) return;
+    // Sin .intro-pending (reduce-motion, etc.): página normal, sin intro.
+    if(!root.classList.contains("intro-pending")){ intro.remove(); return; }
+
+    const FADE_MS = 500;            // fade del video a transparente
+    const START_DEADLINE_MS = 3000; // si el video no arranca en este tiempo desde que se abrió la página, se salta
+    let finished = false, started = false, watchdog = null;
+
+    /* ---- puntitos: mismos puntos del fondo (.bg::before), pero con "pop" de afuera hacia adentro ---- */
+    function popDots(onDone){
+      const bg = document.querySelector("#screen-1 .bg");
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext && canvas.getContext("2d");
+      if(!bg || !ctx){ onDone(); return; }
+      canvas.className = "dots-canvas";
+      canvas.setAttribute("aria-hidden", "true");
+      bg.appendChild(canvas);
+
+      // Valores idénticos al CSS de .bg::before: rejilla 24px, punto ~1.7px de radio,
+      // blanco .55 con opacidad de capa .5, y la misma máscara elíptica (75% x 65%, 38%→78%).
+      const GRID = 24, RADIUS = 1.7, BASE_ALPHA = .55 * .5;
+      const TOTAL = 1000;                 // duración total: 1 s
+      const WAVE = .6;                    // la "ola" de afuera→adentro ocupa el 60%
+      const LIFE = TOTAL * (1 - WAVE);    // cada puntito tarda 400 ms en hacer su pop
+      const PEAK = 1.85, PEAK_AT = .4;    // sale ~1.85x más grande y vuelve a 1x (discreto)
+      let dots = [], w = 0, h = 0, raf = 0, t0 = null;
+
+      function build(){
+        w = bg.clientWidth; h = bg.clientHeight;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        dots = [];
+        const cx = w / 2, cy = h / 2, rx = .75 * w, ry = .65 * h;
+        let tMin = Infinity, tMax = 0;
+        for(let y = GRID / 2; y < h + RADIUS; y += GRID){
+          for(let x = GRID / 2; x < w + RADIUS; x += GRID){
+            const nx = (x - cx) / rx, ny = (y - cy) / ry;
+            const t = Math.sqrt(nx * nx + ny * ny);
+            const m = Math.min(1, Math.max(0, (t - .38) / .4)); // alfa de la máscara
+            if(m <= .004) continue;                             // invisible en el centro: ni se dibuja
+            dots.push({ x, y, m, t, start: 0 });
+            if(t < tMin) tMin = t;
+            if(t > tMax) tMax = t;
+          }
+        }
+        const span = (tMax - tMin) || 1;
+        for(const d of dots){
+          const k = (d.t - tMin) / span;                        // 1 = el más externo
+          const jitter = (Math.random() - .5) * TOTAL * .06;    // desorden mínimo para que se sienta orgánico
+          d.start = Math.min(Math.max((1 - k) * TOTAL * WAVE + jitter, 0), TOTAL - LIFE);
+        }
+      }
+
+      function draw(t){
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = "#fff";
+        for(const d of dots){
+          if(t < d.start) continue;                             // todavía no "nace"
+          const p = Math.min(1, (t - d.start) / LIFE);
+          let s = 1, a = 1;
+          if(p < 1){
+            if(p < PEAK_AT){ const q = p / PEAK_AT; s = PEAK * (1 - Math.pow(1 - q, 3)); }        // 0 → grande
+            else { const q = (p - PEAK_AT) / (1 - PEAK_AT); s = PEAK + (1 - PEAK) * q * q * (3 - 2 * q); } // grande → 1x
+            a = Math.min(1, p / .3);
+          }
+          ctx.globalAlpha = BASE_ALPHA * d.m * a;
+          ctx.beginPath(); ctx.arc(d.x, d.y, RADIUS * s, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function frame(now){
+        if(t0 === null) t0 = now; // arranca en el primer frame real (si la pestaña estaba oculta, no se "salta" el pop)
+        const t = now - t0;
+        if(t >= TOTAL){
+          window.removeEventListener("resize", build);
+          draw(TOTAL + LIFE);
+          // Relevo sin salto: en el mismo instante aparece el fondo CSS (mismos puntos) y se quita el canvas.
+          onDone();
+          canvas.remove();
+          return;
+        }
+        draw(t);
+        raf = requestAnimationFrame(frame);
+      }
+
+      build();
+      window.addEventListener("resize", build);
+      raf = requestAnimationFrame(frame);
+    }
+
+    /* ---- portada: puntitos (1 s) y luego logo + botón con pop ---- */
+    function revealCover(){
+      popDots(()=>{
+        root.classList.add("intro-pop"); // logo/banner al instante, botón +200 ms (ver CSS)
+        setTimeout(()=> root.classList.remove("intro-pending", "intro-pop"), 1300); // limpieza: queda la portada normal
+      });
+    }
+
+    /* ---- fin del video (o intro saltado) ---- */
+    function endIntro(fade){
+      if(finished) return;
+      finished = true;
+      clearTimeout(watchdog);
+      const cleanup = ()=>{
+        try{ video.pause(); }catch(e){}
+        intro.remove();
+        revealCover();
+      };
+      if(fade){
+        intro.style.transition = "opacity " + FADE_MS + "ms ease";
+        void intro.offsetWidth;
+        intro.classList.add("is-leaving"); // el video se vuelve transparente y deja ver el rosado
+        setTimeout(cleanup, FADE_MS + 30);
+      }else{
+        cleanup(); // el video ni siquiera se vio: directo a la portada
+      }
+    }
+
+    function onStarted(){
+      started = true;
+      clearTimeout(watchdog);
+      // Si el video se congela a la mitad, no se queda la pantalla trabada.
+      const dur = isFinite(video.duration) && video.duration > 0 ? video.duration : 3;
+      watchdog = setTimeout(()=> endIntro(true), (dur + 2.5) * 1000);
+    }
+
+    video.addEventListener("playing", onStarted);
+    video.addEventListener("ended", ()=> endIntro(true));
+    video.addEventListener("error", ()=> endIntro(false));
+
+    // Este script puede correr cuando el video ya avanzó (hojas de estilo lentas): se revisa su estado actual.
+    if(video.error){ endIntro(false); return; }
+    if(video.ended){ endIntro(true); return; }
+    if(!video.paused && video.currentTime > 0) onStarted();
+    else{
+      watchdog = setTimeout(()=>{ if(!started) endIntro(false); },
+                            Math.max(1200, START_DEADLINE_MS - performance.now()));
+    }
+    const p = video.play(); // por si el navegador no lo arrancó solo
+    if(p && p.catch) p.catch(()=> endIntro(false)); // autoplay bloqueado del todo → se salta el intro
+  })();
+</script>
 
 <script>
   const screens = Array.from(document.querySelectorAll(".screen"));
