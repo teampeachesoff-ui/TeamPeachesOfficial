@@ -27,6 +27,11 @@
     --white:#ffffff;
     --ink:#7a1150;
     --ink-soft:#a3427f;
+    /* Gap "borde de página → logo": 70% del valor original (reducido un 30%).
+       El mismo valor se reutiliza como gap "logo → título" (ver .brandbar más abajo),
+       así ambos espacios son SIEMPRE exactamente iguales, sin importar que el logo
+       viva en el encabezado y el título viva en el bloque de contenido aparte. */
+    --edge-gap: clamp(.56rem, 2.1vw, .98rem);
   }
   *{box-sizing:border-box;}
   html,body{
@@ -87,7 +92,9 @@
 
   .brandbar{
     display:flex; align-items:center; justify-content:center; gap:.5rem;
-    padding:clamp(.8rem,3vw,1.4rem) 1rem;
+    /* padding-top = gap "borde de página → logo". padding-bottom = gap "logo → título".
+       Mismo valor (--edge-gap) en ambos: quedan EXACTAMENTE iguales siempre. */
+    padding:var(--edge-gap) 1rem;
   }
   .brandbar img{height:4.2rem; width:auto; display:block;}
 
@@ -98,22 +105,35 @@
   .stage{
     width:100%; min-width:0; min-height:0; display:flex; flex-direction:column;
     justify-content:flex-start; align-items:center;
-    padding:clamp(.9rem,4vw,3rem); overflow-y:auto; overflow-anchor:none;
+    /* padding-top:0 a propósito: el gap "logo → título" lo pone por completo el
+       padding-bottom de .brandbar (--edge-gap), nunca este padding, para que ambos
+       gaps (borde→logo y logo→título) sean exactamente iguales y no se sumen. */
+    padding:0 clamp(.9rem,4vw,3rem) clamp(.9rem,4vw,3rem);
+    overflow-y:hidden; overflow-anchor:none;
+    /* Regla fija: encabezado y pie de página nunca se tapan con contenido. Como regla
+       general el contenido NUNCA hace scroll (en vez de eso se reescala como conjunto,
+       ver .fit-content / fitStageContent en el script); la única pantalla que sí puede
+       hacer scroll es la final (más abajo, .stage-scroll), por ser una lista larga. */
+  }
+  .stage.stage-scroll{
+    overflow-y:auto;
     /* Scrollbar personalizada: solo aparece cuando el contenido de verdad no cabe (overflow-y:auto
        no la muestra si no hace falta), y cuando aparece es una barra blanca delgada y "flotante"
        sobre track transparente -nunca la genérica gris del navegador-. */
     scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.55) transparent;
   }
-  .stage::-webkit-scrollbar{width:6px;}
-  .stage::-webkit-scrollbar-track{background:transparent;}
-  .stage::-webkit-scrollbar-thumb{background:rgba(255,255,255,.55); border-radius:999px;}
-  .stage::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.8);}
-  /* Centrado sin depender de "align-items:safe center" (soporte irregular en Safari/iOS,
-     donde silenciosamente cae al centrado normal y recorta por arriba si no cabe). Estos
-     pseudo-elementos con margin:auto empujan el contenido al centro cuando sobra espacio,
-     y su margen simplemente se colapsa a 0 (nunca a negativo) cuando no cabe -el contenido
-     queda anclado arriba y se puede hacer scroll para verlo completo, sin recortar nada-. */
-  .stage::before,.stage::after{content:""; flex:none; margin:auto 0; width:100%; height:0;}
+  .stage.stage-scroll::-webkit-scrollbar{width:6px;}
+  .stage.stage-scroll::-webkit-scrollbar-track{background:transparent;}
+  .stage.stage-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.55); border-radius:999px;}
+  .stage.stage-scroll::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.8);}
+  /* El contenido arranca pegado arriba (justo después del gap fijo logo→título) y
+     cualquier espacio sobrante se acumula abajo, antes del pie de página -que es
+     transparente y nunca debería alcanzarse-, sin tocarlo nunca. */
+  .stage::after{content:""; flex:none; margin-top:auto; width:100%; height:0;}
+  .fit-content{
+    transform-origin:top center; width:100%;
+    display:flex; flex-direction:column; align-items:center;
+  }
 
   .copy{width:min(100%,720px); text-align:center; animation:rise 700ms ease both;}
   .label{font-family:"Grandstander",sans-serif; font-style:italic; font-weight:600; font-size:.95rem; color:var(--white); opacity:.85; margin:0 0 .4rem;}
@@ -294,7 +314,9 @@
   .smule-section{opacity:0; transform:translateY(16px); margin-top:1.4rem;}
   .redes-screen.show-smule .smule-section{animation:blockIn .8s ease forwards;}
   .smule-group{margin-bottom:1.6rem;}
-  .smule-group h4{font-family:"Grandstander",sans-serif; font-style:italic; font-weight:800; font-size:1.5rem; margin:0 0 .8rem; color:var(--white); opacity:1; text-shadow:0 3px 12px rgba(120,10,60,.55), 0 2px 0 rgba(0,0,0,.15); letter-spacing:.02em;}
+  /* "Fundadores" y "Staff" comparten exactamente el mismo estilo (misma clase) y nunca
+     se cortan/truncan, sea cual sea el ancho de pantalla. */
+  .smule-group h4{font-family:"Grandstander",sans-serif; font-style:italic; font-weight:800; font-size:1.5rem; margin:0 0 .8rem; color:var(--white); opacity:1; text-shadow:0 3px 12px rgba(120,10,60,.55), 0 2px 0 rgba(0,0,0,.15); letter-spacing:.02em; white-space:normal; overflow-wrap:break-word; text-overflow:clip; overflow:visible;}
   .smule-grid{display:flex; flex-wrap:wrap; column-gap:1.1rem; row-gap:1.4rem; justify-content:center;}
   .smule-card{display:flex; flex-direction:column; align-items:center; gap:.4rem; width:6.4rem; text-decoration:none; cursor:pointer; transition:transform 160ms ease;}
   .smule-card:hover{transform:translateY(-3px);}
@@ -306,7 +328,13 @@
     pointer-events:none; z-index:2;
     border-radius:0; border:none; background:none; box-shadow:none; object-fit:contain;
   }
-  .smule-card span:last-child{font-size:.72rem; font-weight:700; color:var(--white); text-align:center; word-break:break-word; line-height:1.2;}
+  .smule-card span:last-child{
+    font-size:.72rem; font-weight:700; color:var(--white); text-align:center; word-break:break-word; line-height:1.2;
+    /* "Separar": el nombre baja un 50% de su propia altura de texto respecto al avatar,
+       pero via transform (no margin/padding), así no empuja ni mueve nada de lo que
+       está debajo (ni el resto de la fila, ni el bloque "Staff"). */
+    display:block; transform:translateY(50%);
+  }
   .icons-row{display:flex; gap:1.3rem; justify-content:center; margin-top:2.6rem;}
   .icon-badge{
     opacity:0; transform:translate(60px,-20px) rotate(20deg) scale(.7);
@@ -344,9 +372,11 @@
     .clip-frame{width:min(100%, calc(42vh * 16 / 9));}
   }
   @media (max-width:640px){
-    .stage{padding:.85rem;}
+    .stage{padding:0 .85rem .85rem;}
     .nav-row{padding:.7rem .85rem .95rem;}
-    .brandbar{padding-top:.75rem;}
+    /* Ya no se pisa el padding-top de .brandbar aquí: --edge-gap (con clamp en vw)
+       ya se encarga de escalar el gap en pantallas angostas, y así se mantiene
+       SIEMPRE igual al padding-bottom (gap logo → título). */
     .btn-primary,.btn-secondary{padding-left:1.3rem; padding-right:1.3rem;}
     .smule-card{width:5.6rem;}
   }
@@ -396,11 +426,13 @@
       <img src="Logos/BannerPeaches.png" alt="Peaches">
     </div>
     <div class="stage">
-      <div class="copy">
-        <h1 id="t1" class="title"><img src="Logos/Peaches.png" alt="Peaches" class="title-logo"></h1>
-        <button id="start-button" type="button" class="btn-primary">
-          <span>Empezar</span><i data-lucide="arrow-right" class="w-5 h-5"></i>
-        </button>
+      <div class="fit-content">
+        <div class="copy">
+          <h1 id="t1" class="title"><img src="Logos/Peaches.png" alt="Peaches" class="title-logo"></h1>
+          <button id="start-button" type="button" class="btn-primary">
+            <span>Empezar</span><i data-lucide="arrow-right" class="w-5 h-5"></i>
+          </button>
+        </div>
       </div>
     </div>
     <div></div>
@@ -413,6 +445,7 @@
       <img src="Logos/BannerPeaches.png" alt="Peaches">
     </div>
     <div class="stage">
+      <div class="fit-content">
       <div class="sequence">
         <div style="text-align:center;">
           <h2 id="t2" class="title small">El mejor team de Peaches 🔥</h2>
@@ -465,6 +498,7 @@
           </button>
         </div>
       </div>
+      </div>
     </div>
     <nav class="nav-row" aria-label="Navegación">
       <button type="button" class="btn-secondary nav-back" data-target="0">Atrás</button>
@@ -479,7 +513,7 @@
       <img src="Logos/BannerPeaches.png" alt="Peaches">
     </div>
     <div class="stage">
-      <div class="duo-wrap" id="duo-wrap">
+      <div class="duo-wrap fit-content" id="duo-wrap">
         <h2 class="title small duo-title dt-1 curve-text">Conoce gente talentosa</h2>
         <div class="duo-cards" id="duo-cards">
           <div class="duo-card dc-1">
@@ -521,7 +555,7 @@
       <img src="Logos/BannerPeaches.png" alt="Peaches">
     </div>
     <div class="stage">
-      <div style="width:min(100%,620px); margin:0 auto; text-align:center;">
+      <div class="fit-content" style="width:min(100%,620px); margin:0 auto; text-align:center;">
         <p class="label">Quiénes somos</p>
         <h2 id="t4" class="title small">Nosotros</h2>
         <div class="nosotros-stack" id="nosotros-stack">
@@ -553,7 +587,7 @@
       <img src="Logos/BannerPeaches.png" alt="Peaches">
     </div>
     <div class="stage">
-      <div class="redes-screen" id="redes-screen">
+      <div class="redes-screen fit-content" id="redes-screen">
         <h2 id="t5" class="title small">Síguenos en nuestras redes</h2>
         <div class="smule-section">
           <div class="smule-group">
@@ -644,7 +678,7 @@
     <div class="brandbar" aria-hidden="true">
       <img src="Logos/BannerPeaches.png" alt="Peaches">
     </div>
-    <div class="stage">
+    <div class="stage stage-scroll" id="stage-dinamica">
       <div class="dyn-wrap">
         <h2 id="t6" class="title small">Dinámica</h2>
         <div class="dyn-cards">
@@ -756,6 +790,41 @@
     activeTimers = [];
   }
 
+  /* ---------- ajuste de tamaño en conjunto ("fit-to-space") ----------
+     Regla fija: los elementos nunca se pueden tapar entre sí ni con el
+     encabezado/pie de página. Por defecto el contenido de una pantalla NUNCA
+     hace scroll: si no cabe en el alto disponible, se reescala como un solo
+     bloque (transform:scale, mismo factor en X e Y => misma relación de
+     aspecto) hasta ocupar exactamente el espacio vertical disponible, sin
+     recortarse. La única excepción es la pantalla final (Dinámica), que sí
+     puede hacer scroll por ser una lista más larga (ver .stage-scroll). */
+  function fitStageContent(screenEl){
+    if(!screenEl) return;
+    const stage = screenEl.querySelector(".stage:not(.stage-scroll)");
+    const content = stage && stage.querySelector(":scope > .fit-content");
+    if(!stage || !content) return;
+    content.style.transform = "none";
+    const available = stage.clientHeight;
+    const needed = content.scrollHeight;
+    if(available > 0 && needed > available){
+      const scale = Math.max(available / needed, 0.35);
+      content.style.transform = "scale(" + scale + ")";
+    }
+  }
+  function fitCurrentScreen(){
+    fitStageContent(screens[currentScreen]);
+  }
+  let fitRaf = null;
+  function scheduleFit(){
+    if(fitRaf) cancelAnimationFrame(fitRaf);
+    fitRaf = requestAnimationFrame(()=>{
+      fitRaf = requestAnimationFrame(fitCurrentScreen);
+    });
+  }
+  window.addEventListener("resize", scheduleFit);
+  window.addEventListener("orientationchange", scheduleFit);
+  window.addEventListener("load", scheduleFit);
+
   function showScreen(index){
     currentScreen = index;
     clearActiveTimers();
@@ -766,8 +835,14 @@
     if(index === 2) playDuo();
     if(index === 3) playNosotros();
     if(index === 4) playRedes();
-    if(index === 5) updateLocalTime();
+    if(index === 5){
+      updateLocalTime();
+      // La pantalla de Dinámica siempre vuelve a mostrarse con el scroll al inicio.
+      const dynStage = document.getElementById("stage-dinamica");
+      if(dynStage) dynStage.scrollTop = 0;
+    }
     if(index >= 2) playBgMusic(); else pauseBgMusic();
+    scheduleFit();
   }
 
   document.querySelectorAll(".nav-back, .nav-next").forEach(btn=>{
@@ -1054,6 +1129,13 @@
     document.querySelectorAll(".curve-text").forEach((el)=> curveText(el));
     wireDuoVideos();
     wireClipVideos();
+    // Las imágenes (p.ej. el logo grande de la portada) pueden terminar de cargar
+    // después del primer cálculo y cambiar la altura real del contenido.
+    document.querySelectorAll(".fit-content img").forEach((img)=>{
+      if(img.complete) return;
+      img.addEventListener("load", scheduleFit, { once:true });
+    });
+    scheduleFit();
   });
 </script>
 </body>
